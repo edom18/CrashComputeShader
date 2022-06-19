@@ -4,7 +4,8 @@ Compute Shaderを編集してEditorを再生するとクラッシュする、と
 
 # 現象発生手順
 
-1. [ComputeShader](https://github.com/edom18/CrashComputeShader/blob/main/Assets/ComputeShaders/ParticleSystem.compute)を編集する
-2. Unityを再生する
+1. AndroidにSwitch Platformする
+2. [ComputeShader](https://github.com/edom18/CrashComputeShader/blob/main/Assets/ComputeShaders/ParticleSystem.compute)を編集する
+3. Unityを再生する
 
 編集内容は問わず、ハードコードしているパラメータを調整するだけでも発生します。
