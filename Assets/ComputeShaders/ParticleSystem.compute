@@ -1,0 +1,65 @@
+#pragma kernel Initialize
+#pragma kernel Emit
+#pragma kernel Update
+
+#include "Include/Particle.cginc"
+#include "Include/NoiseUtils.cginc"
+
+RWStructuredBuffer<Particle> _ParticleBuffer;
+StructuredBuffer<ParticleData> _ParticleDataBuffer;
+
+AppendStructuredBuffer<uint> _DeadListBuffer;
+ConsumeStructuredBuffer<uint> _ParticlePooBuffer;
+
+float _Time;
+float _DeltaTime;
+
+[numthreads(8,1,1)]
+void Initialize(uint id : SV_DispatchThreadID)
+{
+    _ParticleBuffer[id].active = 0;
+    _DeadListBuffer.Append(id);
+}
+
+[numthreads(8,1,1)]
+void Emit(uint id : SV_DispatchThreadID)
+{
+    uint pid = _ParticlePooBuffer.Consume();
+    Particle p = _ParticleBuffer[pid];
+
+    ParticleData pdata = _ParticleDataBuffer[id];
+
+    p.active = 1;
+    p.position = pdata.basePosition;
+    p.basePosition = pdata.basePosition;
+    p.velocity = pdata.velocity;
+    p.color = pdata.color;
+    p.age = 0;
+
+    _ParticleBuffer[pid] = p;
+}
+
+[numthreads(8,1,1)]
+void Update(uint id : SV_DispatchThreadID)
+{
+    Particle p = _ParticleBuffer[id];
+
+    if (p.active == 0)
+    {
+    }
+    else
+    {
+        p.age += _DeltaTime;
+        if (p.age > p.lifetime)
+        {
+            p.age = 0;
+        }
+
+        // float s = sin(_Time * 3.1415 * 0.2);
+        float s = sin(_Time * 3.1415);
+        float3 n = Pnoise(id.xxx + s);
+        p.position = p.basePosition + n * 0.05;
+    }
+
+    _ParticleBuffer[id] = p;
+}
